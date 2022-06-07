@@ -5,7 +5,9 @@
  */
 package org.gerdoc.service;
 
+import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,15 +15,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import org.gerdoc.dao.Proveedor;
-
 /**
  *
  * @author gerdoc
  */
-public class ProveedorService 
+public class ProveedorService implements Serializable
 {
     
-    public List<Proveedor> getProveedorList( )
+    public static List<Proveedor> getProveedorList( )
     {
         List<Proveedor>proveedorList = null;
         Connection connection = null;
@@ -65,29 +66,38 @@ public class ProveedorService
         return null;
     }
     
-    public boolean addProveedor( Proveedor proveedor )
+    public static boolean addProveedor( Proveedor proveedor )
     {
-        Connection connection = null;
+        Connection connection = null;        
+        String sql = null;
         PreparedStatement preparedStatement = null;
-        String sql = "INSERT INTO TBL_PROV(NOMBRE) VALUES(?)";
         int row = 0;
         try 
         {
+            if( proveedor == null )
+            {
+                return false;
+            }
             connection = MySqlConnection.getConnection( );
             if( connection == null )
             {
                 return false;
             }
+            sql = "INSERT INTO TBL_PROV(NOMBRE) VALUES(?)";
             preparedStatement = connection.prepareStatement(sql);
             if( preparedStatement == null )
             {
                 return false;
             }
             preparedStatement.setString(1, proveedor.getNombre());
-            
             row = preparedStatement.executeUpdate();
+            if( row == 0 )
+            {
+                return false;
+            }
+            preparedStatement.close();
             MySqlConnection.closeConnection(connection);
-            return row == 1;
+            return true;
         } 
         catch (SQLException ex) 
         {
@@ -96,43 +106,14 @@ public class ProveedorService
         return false;
     }
     
-    public boolean deleteProveedor( Proveedor proveedor )
-    {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        String sql = "DELETE FROM TBL_PROV WHERE ID_CATPROV = ?";
-        int row = 0;
-        try 
-        {
-            connection = MySqlConnection.getConnection( );
-            if( connection == null )
-            {
-                return false;
-            }
-            preparedStatement = connection.prepareStatement(sql);
-            if( preparedStatement == null )
-            {
-                return false;
-            }
-            preparedStatement.setInt(1, proveedor.getId());
-            row = preparedStatement.executeUpdate();
-            MySqlConnection.closeConnection(connection);
-            return row == 1;
-        } 
-        catch (SQLException ex) 
-        {
-            ex.printStackTrace();
-        }
-        return false;
-    }
-    
-    public Proveedor getProveedorById( Integer id )
+    public static Proveedor getProveedorById( Integer id )
     {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        String sql = "SELECT * FROM TBL_PROV WHERE ID_CATPROV= ?";
         Proveedor proveedor = null;
+        String sql = "SELECT * FROM TBL_PROV WHERE ID_CATPROV= ?";
+        
         try 
         {
             connection = MySqlConnection.getConnection( );
@@ -141,8 +122,12 @@ public class ProveedorService
                 return null;
             }
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, id );
-            resultSet = preparedStatement.executeQuery( );
+            if( preparedStatement == null )
+            {
+                return null;
+            }
+            preparedStatement.setInt(1, id);
+            resultSet = preparedStatement.executeQuery();
             if( resultSet == null )
             {
                 return null;
@@ -152,8 +137,8 @@ public class ProveedorService
                 proveedor = new Proveedor();
                 proveedor.setId(resultSet.getInt(1) );
                 proveedor.setNombre(resultSet.getString(2) );
-                
             }
+            preparedStatement.close();
             resultSet.close();
             MySqlConnection.closeConnection(connection);
             return proveedor;
@@ -165,19 +150,24 @@ public class ProveedorService
         return null;
     }
     
-    public boolean updateProveedor( Proveedor proveedor )
+    public static boolean updateProveedor( Proveedor proveedor )
     {
-        Connection connection = null;
+        Connection connection = null;        
+        String sql = null;
         PreparedStatement preparedStatement = null;
-        String sql = "update TBL_PROV SET NOMBRE=? WHERE ID_CATPROV= ?";
         int row = 0;
         try 
         {
+            if( proveedor == null || proveedor.getId()== null || proveedor.getNombre()== null )
+            {
+                return false;
+            }
             connection = MySqlConnection.getConnection( );
             if( connection == null )
             {
                 return false;
             }
+            sql = "update TBL_PROV SET NOMBRE=? WHERE ID_CATPROV= ?";
             preparedStatement = connection.prepareStatement(sql);
             if( preparedStatement == null )
             {
@@ -186,8 +176,53 @@ public class ProveedorService
             preparedStatement.setString(1, proveedor.getNombre());
             preparedStatement.setInt(2, proveedor.getId());
             row = preparedStatement.executeUpdate();
+            if( row == 0 )
+            {
+                return false;
+            }
+            preparedStatement.close();
             MySqlConnection.closeConnection(connection);
-            return row == 1;
+            return true;
+        } 
+        catch (SQLException ex) 
+        {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+    
+    public static boolean deleteProveedor( Integer id )
+    {
+        Connection connection = null;        
+        String sql = null;
+        PreparedStatement preparedStatement = null;
+        int row = 0;
+        try 
+        {
+            if( id == null || id == 0 )
+            {
+                return false;
+            }
+            connection = MySqlConnection.getConnection( );
+            if( connection == null )
+            {
+                return false;
+            }
+            sql = "DELETE FROM TBL_PROV WHERE ID_CATPROV = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            if( preparedStatement == null )
+            {
+                return false;
+            }
+            preparedStatement.setInt(1, id);
+            row = preparedStatement.executeUpdate();
+            if( row == 0 )
+            {
+                return false;
+            }
+            preparedStatement.close();
+            MySqlConnection.closeConnection(connection);
+            return true;
         } 
         catch (SQLException ex) 
         {

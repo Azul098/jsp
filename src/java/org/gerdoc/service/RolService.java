@@ -14,21 +14,23 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import org.gerdoc.dao.Marca;
+import org.gerdoc.dao.Rol;
+import org.gerdoc.dao.Uno;
+import org.gerdoc.dao.Rol;
 /**
  *
  * @author gerdoc
  */
-public class MarcaService implements Serializable
+public class RolService implements Serializable
 {
     
-    public static List<Marca> getMarcaList( )
+    public static List<Rol> getRolList( )
     {
-        List<Marca>marcaList = null;
+        List<Rol>rolList = null;
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
-        Marca marca = null;
+        Rol rol = null;
         
         try 
         {
@@ -42,22 +44,22 @@ public class MarcaService implements Serializable
             {
                 return null;
             }
-            resultSet = statement.executeQuery( "SELECT * FROM TBL_MARCA" );
+            resultSet = statement.executeQuery( "SELECT * FROM TBL_ROL" );
             if( resultSet == null )
             {
                 return null;
             }
-            marcaList = new ArrayList<>();
+            rolList = new ArrayList<>();
             while( resultSet.next() )
             {
-                marca = new Marca();
-                marca.setId_CatMarca(resultSet.getInt(1) );
-                marca.setMarcaS(resultSet.getString(2) );
-                marcaList.add(marca);
+                rol = new Rol();
+                rol.setRolS( resultSet.getString(1) );
+                rol.setDescripcion(resultSet.getString(2) );
+                rolList.add(rol);
             }
             resultSet.close();
             MySqlConnection.closeConnection(connection);
-            return marcaList;
+            return rolList;
         } 
         catch (SQLException ex) 
         {
@@ -66,7 +68,7 @@ public class MarcaService implements Serializable
         return null;
     }
     
-    public static boolean addMarca( Marca marca )
+    public static boolean addRol( Rol rol )
     {
         Connection connection = null;        
         String sql = null;
@@ -74,7 +76,7 @@ public class MarcaService implements Serializable
         int row = 0;
         try 
         {
-            if( marca == null || marca.getMarcaS()== null )
+            if( rol == null || rol.getRolS() == null || rol.getDescripcion() == null )
             {
                 return false;
             }
@@ -83,13 +85,14 @@ public class MarcaService implements Serializable
             {
                 return false;
             }
-            sql = "INSERT INTO TBL_MARCA(MARCA) VALUES(?)";
+            sql = "insert into tbl_rol(Rol, Descripcion) values( ? , ? )";
             preparedStatement = connection.prepareStatement(sql);
             if( preparedStatement == null )
             {
                 return false;
             }
-            preparedStatement.setString(1, marca.getMarcaS());
+            preparedStatement.setString(1, rol.getRolS() );
+            preparedStatement.setString(2, rol.getDescripcion());
             row = preparedStatement.executeUpdate();
             if( row == 0 )
             {
@@ -106,13 +109,13 @@ public class MarcaService implements Serializable
         return false;
     }
     
-    public static Marca getMarcaById( Integer id )
+    public static Rol getRolById( String Rol )
     {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        Marca marca = null;
-        String sql = "SELECT * FROM TBL_MARCA WHERE ID_CATMARCA= ?";
+        Rol rol = null;
+        String sql = "SELECT * FROM TBL_ROL where ROL = ?";
         
         try 
         {
@@ -126,7 +129,7 @@ public class MarcaService implements Serializable
             {
                 return null;
             }
-            preparedStatement.setInt(1, id);
+            preparedStatement.setString(1, Rol);
             resultSet = preparedStatement.executeQuery();
             if( resultSet == null )
             {
@@ -134,14 +137,14 @@ public class MarcaService implements Serializable
             }
             while( resultSet.next() )
             {
-                marca = new Marca();
-                marca.setId_CatMarca(resultSet.getInt(1) );
-                marca.setMarcaS(resultSet.getString(2) );
+                rol = new Rol();
+                rol.setRolS( resultSet.getString(1) );
+                rol.setDescripcion(resultSet.getString(2) );
             }
             preparedStatement.close();
             resultSet.close();
             MySqlConnection.closeConnection(connection);
-            return marca;
+            return rol;
         } 
         catch (SQLException ex) 
         {
@@ -150,7 +153,7 @@ public class MarcaService implements Serializable
         return null;
     }
     
-    public static boolean updateMarca( Marca marca )
+    public static boolean updateRol( Rol rol )
     {
         Connection connection = null;        
         String sql = null;
@@ -158,7 +161,7 @@ public class MarcaService implements Serializable
         int row = 0;
         try 
         {
-            if( marca == null || marca.getId_CatMarca()== null || marca.getMarcaS()== null )
+            if( rol == null || rol.getRolS() == null || rol.getDescripcion() == null )
             {
                 return false;
             }
@@ -167,14 +170,14 @@ public class MarcaService implements Serializable
             {
                 return false;
             }
-            sql = "update TBL_MARCA SET MARCA=? WHERE ID_CATMARCA= ?";
+            sql = "update tbl_rol set Descripcion= ? where Rol = ?";
             preparedStatement = connection.prepareStatement(sql);
             if( preparedStatement == null )
             {
                 return false;
             }
-            preparedStatement.setString(1, marca.getMarcaS());
-            preparedStatement.setInt(2, marca.getId_CatMarca());
+            preparedStatement.setString(1, rol.getDescripcion() );
+            preparedStatement.setString(2, rol.getRolS());
             row = preparedStatement.executeUpdate();
             if( row == 0 )
             {
@@ -191,7 +194,7 @@ public class MarcaService implements Serializable
         return false;
     }
     
-    public static boolean deleteMarca( Integer id )
+    public static boolean deleteRol( String Rol )
     {
         Connection connection = null;        
         String sql = null;
@@ -199,7 +202,7 @@ public class MarcaService implements Serializable
         int row = 0;
         try 
         {
-            if( id == null || id == 0 )
+            if( Rol == null )
             {
                 return false;
             }
@@ -208,13 +211,13 @@ public class MarcaService implements Serializable
             {
                 return false;
             }
-            sql = "DELETE FROM TBL_MARCA WHERE ID_CATMARCA = ?";
+            sql = "delete from tbl_rol where Rol = ?";
             preparedStatement = connection.prepareStatement(sql);
             if( preparedStatement == null )
             {
                 return false;
             }
-            preparedStatement.setInt(1, id);
+            preparedStatement.setString(1, Rol);
             row = preparedStatement.executeUpdate();
             if( row == 0 )
             {

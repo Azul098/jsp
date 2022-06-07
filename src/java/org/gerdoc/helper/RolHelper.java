@@ -9,8 +9,9 @@ import java.io.Serializable;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
-import org.gerdoc.dao.Proveedor;
-import org.gerdoc.service.ProveedorService;
+import org.gerdoc.dao.Rol;
+import org.gerdoc.dao.Rol;
+import org.gerdoc.service.RolService;
 
 /**
  *
@@ -18,44 +19,44 @@ import org.gerdoc.service.ProveedorService;
  */
 @ManagedBean
 @ViewScoped
-public class ProveedorHelper  implements Serializable
+public class RolHelper  implements Serializable
 {
-    private Proveedor proveedor;
+    private Rol rol;
     private boolean edit;
 
-    public ProveedorHelper() 
+    public RolHelper() 
     {
     }
     
-    public boolean loadProveedor( )
+    public boolean loadRol( )
     {
-        if( proveedor == null )
+        if( rol == null )
         {
-            proveedor = new Proveedor( );
+            rol = new Rol( );
         }
-        return proveedor != null;
+        return rol != null;
     }
     
-    public void addProveedor( )
+    public void addRol( )
     {
-        if( !ProveedorService.addProveedor(proveedor) )
+        if( !RolService.addRol(rol) )
         {
             System.out.println("Error");
         }
         else
         {
-            proveedor = null;
+            rol = null;
         }
     }
     
-    public void editProveedor( Integer id )
+    public void editRol( String Rol )
     {
-        if( id == null || id == 0 )
+        if( Rol == null )
         {
             return;
         }
-        proveedor = ProveedorService.getProveedorById(id);
-        if( proveedor == null )
+        rol = RolService.getRolById(Rol);
+        if( rol == null )
         {
             System.out.println("Error");
             return;
@@ -63,51 +64,51 @@ public class ProveedorHelper  implements Serializable
         edit = true;
     }
     
-    public List<Proveedor> getProveedorList( )
+    public List<Rol> getRolList( )
     {
-        return ProveedorService.getProveedorList();
+        return RolService.getRolList();
     }
     
-    public void updateProveedor()
+    public void updateRol()
     {
-        if( !ProveedorService.updateProveedor(proveedor) )
+        if( !RolService.updateRol(rol) )
         {
             System.out.println("Error");
         }
         else
         {
-            proveedor = null;
+            rol = null;
             edit = false;
         }
     }
     
-    public void deleteProveedor( Integer id )
+    public void deleteRol( String Rol )
     {
-        if( !ProveedorService.deleteProveedor( id ) )
+        if( !RolService.deleteRol( Rol ) )
         {
             System.out.println("Error");
         }
         else
         {
-            proveedor = null;
+            rol = null;
         }
     }
    
-    public Proveedor getProveedor() 
+    public Rol getRol() 
     {
-        if( proveedor == null )
+        if( rol == null )
         {
-            if( !loadProveedor() )
+            if( !loadRol() )
             {
                 return null;
             }
         }
-        return proveedor;
+        return rol;
     }
 
-    public void setProveedor(Proveedor proveedor) 
+    public void setRol(Rol rol) 
     {
-        this.proveedor = proveedor;
+        this.rol = rol;
     }
 
     public boolean isEdit() {

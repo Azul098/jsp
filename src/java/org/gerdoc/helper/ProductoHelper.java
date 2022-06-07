@@ -6,199 +6,104 @@
 package org.gerdoc.helper;
 
 import java.io.Serializable;
-
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import org.gerdoc.dao.Marca;
 import org.gerdoc.dao.Producto;
 import org.gerdoc.dao.Proveedor;
 import org.gerdoc.service.ProductoService;
 
-
 /**
  *
- * @author gerdoc
+ * @author Alumno
  */
-public class ProductoHelper implements Serializable
+@ManagedBean
+@ViewScoped
+public class ProductoHelper  implements Serializable
 {
-    private List<Producto>list;
     private Producto producto;
+    private boolean edit;
 
     public ProductoHelper() 
     {
     }
     
-    public boolean loadList( )
+    public boolean loadProducto( )
     {
-        list = new ProductoService().getProductoList();
-        return list != null && list.size() > 0;
+        if( producto == null )
+        {
+            producto = new Producto( new Marca(), new Proveedor() );
+        }
+        return producto != null;
     }
     
-    public boolean addProducto( HttpServletRequest request )
+    public void addProducto( )
     {
-        producto = new Producto( new Marca( ) , new Proveedor( ) ); 
-        producto.setNombre( request.getParameter( "nombre" ) );
-        if( producto.getNombre() == null || producto.getNombre().length() == 0 )
+        if( !ProductoService.addProducto(producto) )
         {
-            return false;
+            System.out.println("Error");
         }
-        producto.setDescripcion(request.getParameter( "descripcion" ) );
-        if( producto.getDescripcion() == null || producto.getDescripcion().length() == 0 )
+        else
         {
-            return false;
+            producto = null;
         }
-        producto.setUrl(request.getParameter( "url" ) );
-        if( producto.getUrl() == null || producto.getUrl().length() == 0 )
-        {
-            return false;
-        }
-        producto.setPrecio( getFloat(request.getParameter( "precio" )) );
-        if( producto.getPrecio() == null )
-        {
-            return false;
-        }
-        producto.setCosto( getFloat(request.getParameter( "costo" )) );
-        if( producto.getCosto() == null )
-        {
-            return false;
-        }
-        producto.getProveedor().setId( getInteger(request.getParameter( "id_catprov" )) );
-        if( producto.getProveedor().getId() == null )
-        {
-            return false;
-        }
-        producto.getMarca().setId_CatMarca( getInteger(request.getParameter( "id_catmarca" )) );
-        if( producto.getMarca().getId_CatMarca() == null )
-        {
-            return false;
-        }
-        return new ProductoService().addProducto(producto);
     }
     
-    
-    public Integer getInteger( String campo )
+    public void editProducto( Integer id )
     {
-        Integer val = 0;
-        if( campo == null || campo.length() == 0 )
+        if( id == null || id == 0 )
         {
-            return null;
+            return;
         }
-        try
+        producto = ProductoService.getProductoById(id);
+        if( producto == null )
         {
-            val = new Integer(campo);
-            return val;
+            System.out.println("Error");
+            return;
         }
-        catch(NumberFormatException ex)
-        {
-            ex.printStackTrace();
-        }
-        return null;
+        edit = true;
     }
     
-    public Float getFloat( String campo )
+    public List<Producto> getProductoList( )
     {
-        Float val = 0.0f;
-        if( campo == null || campo.length() == 0){
-            return null;
-        }
-        try{
-            val = new Float(campo);
-            return val;
-        }
-        catch(NumberFormatException ex){
-            ex.printStackTrace();
-        }
-        return null;
+        return ProductoService.getProductoList();
     }
     
-    public boolean deleteProducto( HttpServletRequest request )
+    public void updateProducto()
     {
-        producto = new Producto( new Marca(), new Proveedor());
-        producto.setId( getInteger( request.getParameter( "id" )) );
-        if( producto.getId( ) == null )
+        if( !ProductoService.updateProducto(producto) )
         {
-            return false;
+            System.out.println("Error");
         }
-        return new ProductoService().deleteProducto( producto );
+        else
+        {
+            producto = null;
+            edit = false;
+        }
     }
     
-    public boolean updateProducto( HttpServletRequest request )
+    public void deleteProducto( Integer id )
     {
-        producto = new Producto( new Marca(), new Proveedor());
-        producto.setId( getInteger( request.getParameter( "id" )) );
-        if( producto.getId( ) == null )
+        if( !ProductoService.deleteProducto( id ) )
         {
-            return false;
+            System.out.println("Error");
         }
-        producto.setNombre( request.getParameter( "nombre" ) );
-        if( producto.getNombre() == null || producto.getNombre().length() == 0 )
+        else
         {
-            return false;
+            producto = null;
         }
-        producto.setDescripcion(request.getParameter( "descripcion" ) );
-        if( producto.getDescripcion() == null || producto.getDescripcion().length() == 0 )
-        {
-            return false;
-        }
-        producto.setUrl(request.getParameter( "url" ) );
-        if( producto.getUrl() == null || producto.getUrl().length() == 0 )
-        {
-            return false;
-        }
-        producto.setPrecio( getFloat(request.getParameter( "precio" )) );
-        if( producto.getPrecio() == null )
-        {
-            return false;
-        }
-        producto.setCosto( getFloat(request.getParameter( "costo" )) );
-        if( producto.getCosto() == null )
-        {
-            return false;
-        }
-        producto.getProveedor().setId( getInteger(request.getParameter( "id_catprov" )) );
-        if( producto.getProveedor().getId() == null )
-        {
-            return false;
-        }
-        producto.getMarca().setId_CatMarca( getInteger(request.getParameter( "id_catmarca" )) );
-        if( producto.getMarca().getId_CatMarca() == null )
-        {
-            return false;
-        }
-        return new ProductoService().updateProducto( producto );
     }
-    
-    public Producto getProductoById( HttpServletRequest request )
+   
+    public Producto getProducto() 
     {
-        Producto producto = null;
-        Integer id = null;
-        id = getInteger( request.getParameter( "id" ) );
-        if( id == null )
+        if( producto == null )
         {
-            return null;
-        }
-        return new ProductoService().getProductoById( id );
-    }
-    
-    public List<Producto> getList()
-    {
-        if( list == null || list.size( )== 0 )
-        {
-            if( !loadList( ) )
+            if( !loadProducto() )
             {
                 return null;
             }
         }
-        return list;
-    }
-
-    public void setList(List<Producto> list) 
-    {
-        this.list = list;
-    }
-
-    public Producto getProducto() 
-    {
         return producto;
     }
 
@@ -206,5 +111,14 @@ public class ProductoHelper implements Serializable
     {
         this.producto = producto;
     }
+
+    public boolean isEdit() {
+        return edit;
+    }
+
+    public void setEdit(boolean edit) {
+        this.edit = edit;
+    }
+    
     
 }

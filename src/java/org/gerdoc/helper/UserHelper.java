@@ -9,8 +9,9 @@ import java.io.Serializable;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
-import org.gerdoc.dao.Proveedor;
-import org.gerdoc.service.ProveedorService;
+import org.gerdoc.dao.User;
+import org.gerdoc.dao.User;
+import org.gerdoc.service.UserService;
 
 /**
  *
@@ -18,44 +19,44 @@ import org.gerdoc.service.ProveedorService;
  */
 @ManagedBean
 @ViewScoped
-public class ProveedorHelper  implements Serializable
+public class UserHelper  implements Serializable
 {
-    private Proveedor proveedor;
+    private User user;
     private boolean edit;
 
-    public ProveedorHelper() 
+    public UserHelper() 
     {
     }
     
-    public boolean loadProveedor( )
+    public boolean loadUser( )
     {
-        if( proveedor == null )
+        if( user == null )
         {
-            proveedor = new Proveedor( );
+            user = new User( );
         }
-        return proveedor != null;
+        return user != null;
     }
     
-    public void addProveedor( )
+    public void addUser( )
     {
-        if( !ProveedorService.addProveedor(proveedor) )
+        if( !UserService.addUser(user) )
         {
             System.out.println("Error");
         }
         else
         {
-            proveedor = null;
+            user = null;
         }
     }
     
-    public void editProveedor( Integer id )
+    public void editUser( String usuario )
     {
-        if( id == null || id == 0 )
+        if( usuario == null )
         {
             return;
         }
-        proveedor = ProveedorService.getProveedorById(id);
-        if( proveedor == null )
+        user = UserService.getUserById(usuario);
+        if( user == null )
         {
             System.out.println("Error");
             return;
@@ -63,51 +64,51 @@ public class ProveedorHelper  implements Serializable
         edit = true;
     }
     
-    public List<Proveedor> getProveedorList( )
+    public List<User> getUserList( )
     {
-        return ProveedorService.getProveedorList();
+        return UserService.getUserList();
     }
     
-    public void updateProveedor()
+    public void updateUser()
     {
-        if( !ProveedorService.updateProveedor(proveedor) )
+        if( !UserService.updateUser(user) )
         {
             System.out.println("Error");
         }
         else
         {
-            proveedor = null;
+            user = null;
             edit = false;
         }
     }
     
-    public void deleteProveedor( Integer id )
+    public void deleteUser( String usuario )
     {
-        if( !ProveedorService.deleteProveedor( id ) )
+        if( !UserService.deleteUser( usuario ) )
         {
             System.out.println("Error");
         }
         else
         {
-            proveedor = null;
+            user = null;
         }
     }
    
-    public Proveedor getProveedor() 
+    public User getUser() 
     {
-        if( proveedor == null )
+        if( user == null )
         {
-            if( !loadProveedor() )
+            if( !loadUser() )
             {
                 return null;
             }
         }
-        return proveedor;
+        return user;
     }
 
-    public void setProveedor(Proveedor proveedor) 
+    public void setUser(User user) 
     {
-        this.proveedor = proveedor;
+        this.user = user;
     }
 
     public boolean isEdit() {
