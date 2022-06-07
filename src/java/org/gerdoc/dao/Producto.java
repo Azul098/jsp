@@ -26,7 +26,7 @@ public class Producto implements Serializable{
         this.marca = marca;
         this.proveedor = proveedor;
     }
-
+    
     public Integer getId() {
         return Id;
     }

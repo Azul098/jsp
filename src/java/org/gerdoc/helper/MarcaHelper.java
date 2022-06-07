@@ -6,120 +6,102 @@
 package org.gerdoc.helper;
 
 import java.io.Serializable;
-
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import org.gerdoc.dao.Marca;
 import org.gerdoc.service.MarcaService;
 
-
 /**
  *
- * @author gerdoc
+ * @author Alumno
  */
-public class MarcaHelper implements Serializable
+@ManagedBean
+@ViewScoped
+public class MarcaHelper  implements Serializable
 {
-    private List<Marca>list;
     private Marca marca;
+    private boolean edit;
 
     public MarcaHelper() 
     {
     }
     
-    public boolean loadList( )
+    public boolean loadMarca( )
     {
-        list = new MarcaService().getMarcaList();
-        return list != null && list.size() > 0;
+        if( marca == null )
+        {
+            marca = new Marca( );
+        }
+        return marca != null;
     }
     
-    public boolean addMarca( HttpServletRequest request )
+    public void addMarca( )
     {
-        marca = new Marca( ); 
-        marca.setMarca(request.getParameter( "marca" ) );
-        if( marca.getMarca() == null || marca.getMarca().length() == 0 )
+        if( !MarcaService.addMarca(marca) )
         {
-            return false;
+            System.out.println("Error");
         }
-        return new MarcaService().addMarca(marca);
+        else
+        {
+            marca = null;
+        }
     }
     
-    public Integer getInteger( String campo )
+    public void editMarca( Integer id )
     {
-        Integer val = 0;
-        if( campo == null || campo.length() == 0 )
+        if( id == null || id == 0 )
         {
-            return null;
+            return;
         }
-        try
+        marca = MarcaService.getMarcaById(id);
+        if( marca == null )
         {
-            val = new Integer(campo);
-            return val;
+            System.out.println("Error");
+            return;
         }
-        catch(NumberFormatException ex)
-        {
-            ex.printStackTrace();
-        }
-        return null;
+        edit = true;
     }
     
-    public boolean deleteMarca( HttpServletRequest request )
+    public List<Marca> getMarcaList( )
     {
-        marca = new Marca( ); 
-        marca.setId_CatMarca( getInteger( request.getParameter( "id" )) );
-        if( marca.getId_CatMarca( ) == null )
-        {
-            return false;
-        }
-        return new MarcaService().deleteMarca( marca );
+        return MarcaService.getMarcaList();
     }
     
-    public boolean updateMarca( HttpServletRequest request )
+    public void updateMarca()
     {
-        marca = new Marca( ); 
-        marca.setId_CatMarca( getInteger( request.getParameter( "id" )) );
-        if( marca.getId_CatMarca( ) == null )
+        if( !MarcaService.updateMarca(marca) )
         {
-            return false;
+            System.out.println("Error");
         }
-        marca.setMarca( request.getParameter( "marca" ) );
-        if( marca.getMarca() == null || marca.getMarca().length() == 0 )
+        else
         {
-            return false;
+            marca = null;
+            edit = false;
         }
-        return new MarcaService().updateMarca( marca );
     }
     
-    public Marca getMarcaById( HttpServletRequest request )
+    public void deleteMarca( Integer id )
     {
-        Marca marca = null;
-        Integer id = null;
-        id = getInteger( request.getParameter( "id" ) );
-        if( id == null )
+        if( !MarcaService.deleteMarca( id ) )
         {
-            return null;
+            System.out.println("Error");
         }
-        return new MarcaService().getMarcaById( id );
-    }
-    
-    public List<Marca> getList()
-    {
-        if( list == null || list.size( )== 0 )
+        else
         {
-            if( !loadList( ) )
+            marca = null;
+        }
+    }
+   
+    public Marca getMarca() 
+    {
+        if( marca == null )
+        {
+            if( !loadMarca() )
             {
                 return null;
             }
         }
-        return list;
-    }
-
-    public void setList(List<Marca> list) 
-    {
-        this.list = list;
-    }
-
-    public Marca getMarca() 
-    {
         return marca;
     }
 
@@ -127,5 +109,14 @@ public class MarcaHelper implements Serializable
     {
         this.marca = marca;
     }
+
+    public boolean isEdit() {
+        return edit;
+    }
+
+    public void setEdit(boolean edit) {
+        this.edit = edit;
+    }
+    
     
 }
